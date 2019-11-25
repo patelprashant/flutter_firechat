@@ -1,3 +1,4 @@
+import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firechat/components/rounded_button.dart';
 import 'package:flutter_firechat/screens/registration_screen.dart';
@@ -51,9 +52,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     height: animation.value * 100,
                   ),
                 ),
-                Text(
-                  'Fire Chat',
-                  style: TextStyle(
+                TypewriterAnimatedTextKit(
+                  text: ['FireChat'],
+                  textStyle: TextStyle(
                     fontSize: 45.0,
                     fontWeight: FontWeight.w900,
                   ),
