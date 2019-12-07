@@ -74,30 +74,7 @@ class _ChatScreenState extends State<ChatScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            StreamBuilder(
-              stream: _firestore.collection('chatMessages').snapshots(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return Center(
-                    child: CircularProgressIndicator(
-                      backgroundColor: Colors.lightBlueAccent,
-                    ),
-                  );
-                }
-                final _chatMessages = snapshot.data.documents;
-                List<Text> chatMessageWidgets = [];
-                for (var chatMessage in _chatMessages) {
-                  final chatMessageText = chatMessage.data['message'];
-                  final chatMessageSender = chatMessage.data['sender'];
-                  final chatMessageWidget =
-                      Text('$chatMessageText from $chatMessageSender');
-                  chatMessageWidgets.add(chatMessageWidget);
-                }
-                return Column(
-                  children: chatMessageWidgets,
-                );
-              },
-            ),
+            new ChatStream(firestore: _firestore),
             Container(
               decoration: kMessageContainerDecoration,
               child: Row(
@@ -128,6 +105,92 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ChatStream extends StatelessWidget {
+  const ChatStream({
+    Key key,
+    @required Firestore firestore,
+  })  : _firestore = firestore,
+        super(key: key);
+
+  final Firestore _firestore;
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: _firestore.collection('chatMessages').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Center(
+            child: CircularProgressIndicator(
+              backgroundColor: Colors.lightBlueAccent,
+            ),
+          );
+        }
+        final _chatMessages = snapshot.data.documents;
+        List<ChatMessageBubble> chatMessageWidgets = [];
+        for (var chatMessage in _chatMessages) {
+          final chatMessageText = chatMessage.data['message'];
+          final chatMessageSender = chatMessage.data['sender'];
+          final chatMessageBubble = new ChatMessageBubble(
+              message: chatMessageText, sender: chatMessageSender);
+          chatMessageWidgets.add(chatMessageBubble);
+        }
+        return Expanded(
+          child: ListView(
+            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+            children: chatMessageWidgets,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class ChatMessageBubble extends StatelessWidget {
+  const ChatMessageBubble({
+    Key key,
+    @required this.message,
+    @required this.sender,
+  }) : super(key: key);
+
+  final String message;
+  final String sender;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          Text(
+            '$sender',
+            style: TextStyle(
+              fontSize: 12.0,
+              color: Colors.black54,
+            ),
+          ),
+          Material(
+            borderRadius: BorderRadius.circular(15.0),
+            elevation: 4.0,
+            color: Colors.lightBlueAccent,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Text(
+                '$message',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 15.0,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
