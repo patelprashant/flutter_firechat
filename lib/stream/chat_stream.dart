@@ -15,7 +15,10 @@ class ChatStream extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<QuerySnapshot>(
-      stream: _firestore.collection('chatMessages').snapshots(),
+      stream: _firestore
+          .collection('chatMessages')
+          .orderBy('dateCreated', descending: false)
+          .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Center(

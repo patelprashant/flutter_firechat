@@ -97,7 +97,8 @@ class _ChatScreenState extends State<ChatScreen> {
                       messageTextController.clear();
                       _firestore.collection('chatMessages').add({
                         'message': messageText,
-                        'sender': loggedInUser.email
+                        'sender': loggedInUser.email,
+                        'dateCreated': Timestamp.now(),
                       });
                     },
                     child: Text(
